@@ -243,7 +243,7 @@ function CardGrid({ items, title }) {
   const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/favorites')
+    axios.get('https://space-explorer-backend-ksro.onrender.com/api/favorites')
       .then(res => setFavorites(res.data.map(f => f.name)))
       .catch(err => console.error(err));
   }, []);
@@ -253,7 +253,7 @@ function CardGrid({ items, title }) {
     if (isFav) {
       setFavorites(favorites.filter(f => f !== item.name));
     } else {
-      axios.post('http://localhost:5000/api/favorites', { name: item.name, description: item.short })
+      axios.post('https://space-explorer-backend-ksro.onrender.com/api/favorites', { name: item.name, description: item.short })
         .then(() => setFavorites([...favorites, item.name]))
         .catch(err => console.error(err));
     }
@@ -353,7 +353,7 @@ function Contact() {
   const [form, setForm] = useState({ topic: '', content: '' });
 
   const send = () => {
-    axios.post('http://localhost:5000/api/notes', form)
+    axios.post('https://space-explorer-backend-ksro.onrender.com/api/notes', form)
       .then(() => alert('Mensagem enviada com sucesso!'))
       .catch(() => alert('Erro ao enviar. Verifique se o backend está rodando.'));
     setForm({ topic: '', content: '' });
