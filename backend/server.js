@@ -12,14 +12,14 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Conectado ao MongoDB'))
   .catch(err => console.error('Erro ao conectar:', err));
 
-// Modelos
+
 const FavoriteSchema = new mongoose.Schema({ name: String, description: String });
 const Favorite = mongoose.model('Favorite', FavoriteSchema);
 
 const NoteSchema = new mongoose.Schema({ topic: String, content: String });
 const Note = mongoose.model('Note', NoteSchema);
 
-// Router para rotas
+
 const router = express.Router();
 
 router.get('/favorites', async (req, res) => {
@@ -44,7 +44,7 @@ router.post('/notes', async (req, res) => {
   res.json(newNote);
 });
 
-app.use('/api', router);  // Todas rotas sob /api
+app.use('/api', router);  
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));

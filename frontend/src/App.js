@@ -80,7 +80,6 @@ function DetailModal({ show, handleClose, item }) {
   );
 }
 
-// Card com estrelinha de favorito no canto superior direito
 function AstroCard({ item, onClick, isFavorite, onFavoriteToggle }) {
   const [loading, setLoading] = useState(true);
 
@@ -98,10 +97,11 @@ function AstroCard({ item, onClick, isFavorite, onFavoriteToggle }) {
       </div>
 
       {/* Estrelinha de favorito */}
+
       <div
         style={{ position: 'absolute', top: '10px', right: '10px', fontSize: '2rem', cursor: 'pointer', zIndex: 10 }}
         onClick={(e) => {
-          e.stopPropagation(); // não abre o modal
+          e.stopPropagation(); 
           onFavoriteToggle(item);
         }}
       >
@@ -116,7 +116,7 @@ function AstroCard({ item, onClick, isFavorite, onFavoriteToggle }) {
   );
 }
 
-// Imagens confiáveis e testadas (NASA/ESO oficiais)
+
 const allItems = [
   { name: "Sol", image: "https://spaceplace.nasa.gov/gallery-sun/en/solar-flare.en.jpg", short: "Estrela central do sistema solar.", detailed: "Tipo espectral: G2V (anã amarela). Massa: 1.989 × 10^30 kg. Luminosidade: 3.828 × 10^26 W. Diâmetro: 1.392.000 km. Gravidade superficial: 274 m/s² (2796% da Terra). Principal astro do nosso sistema e oresponsável por organizar todas as orbitas e permitir a vida na Teraa" },
   { name: "Mercúrio", image: "https://ichef.bbci.co.uk/ace/ws/640/cpsprodpb/7906/live/936e7150-e4ce-11f0-8a85-09a10e143343.jpg.webp", short: "Planeta mais próximo do Sol.", detailed: "Descoberto: Antiguidade. Diâmetro: 4.879 km. Distância média do Sol: 57.9 milhões km. Período orbital: 88 dias. Luas: 0. Gravidade superficial: 3.7 m/s² (38% da Terra). Segundo planeta mais denso após a Terra, com gravidade similar à de Marte mesmo sendo menor." },
@@ -153,14 +153,14 @@ function Home() {
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  // Carrega favoritos do MongoDB
+  // Carrega favoritos do banco de daddos
   useEffect(() => {
     axios.get('http://localhost:5000/api/favorites')
       .then(res => setFavorites(res.data.map(f => f.name)))
       .catch(err => console.error("Erro ao carregar favoritos:", err));
   }, []);
 
-  // APOD com fallback (API com problema hoje, mas fallback funciona)
+  // API da NASA
   useEffect(() => {
     axios.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY')
       .then(res => {
@@ -177,12 +177,12 @@ function Home() {
       });
   }, []);
 
-  // Toggle favorito
+  // MArcar como favorito
   const toggleFavorite = (item) => {
     const isFav = favorites.includes(item.name);
     if (isFav) {
       setFavorites(favorites.filter(f => f !== item.name));
-      // Opcional: DELETE no backend depois
+      
     } else {
       axios.post('http://localhost:5000/api/favorites', { name: item.name, description: item.short })
         .then(() => setFavorites([...favorites, item.name]))
@@ -236,7 +236,7 @@ function Home() {
   );
 }
 
-// As outras páginas usam AstroCard também (para ter a estrelinha em todo lugar)
+
 function CardGrid({ items, title }) {
   const [favorites, setFavorites] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -337,7 +337,7 @@ function FavoritesPage() {
                 item={item}
                 onClick={() => handleCardClick(item)}
                 isFavorite={true}
-                onFavoriteToggle={() => {}} // não precisa remover aqui
+                onFavoriteToggle={() => {}} 
               />
             </div>
           ))}
