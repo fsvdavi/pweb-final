@@ -155,7 +155,7 @@ function Home() {
 
   // Carrega favoritos do banco de daddos
   useEffect(() => {
-    axios.get('http://localhost:5000/api/favorites')
+    axios.get('https://space-explorer-backend-ksro.onrender.com/api/favorites')
       .then(res => setFavorites(res.data.map(f => f.name)))
       .catch(err => console.error("Erro ao carregar favoritos:", err));
   }, []);
@@ -305,7 +305,7 @@ function FavoritesPage() {
   const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/favorites')
+    axios.get('https://space-explorer-backend-ksro.onrender.com/api/favorites')
       .then(res => {
         const favNames = res.data.map(f => f.name);
         const favItems = allItems.filter(item => favNames.includes(item.name));
