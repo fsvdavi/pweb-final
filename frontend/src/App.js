@@ -7,6 +7,8 @@ import { Container, Navbar, Nav, Card, Button, Form, Modal, Spinner, Row, Col } 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
+const BACKEND_URL = 'https://space-explorer-backend-ksro.onrender.com'; //http://localhost:5000
+
 function App() {
   const particlesInit = useCallback(async (engine) => {
     await loadSlim(engine);
@@ -153,9 +155,9 @@ function Home() {
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  // Carrega favoritos do banco de daddos
+  // Carrega favoritos do banco de daddos 
   useEffect(() => {
-    axios.get('https://space-explorer-backend-ksro.onrender.com/api/favorites')
+    axios.get(`${BACKEND_URL}/api/favorites`) 
       .then(res => setFavorites(res.data.map(f => f.name)))
       .catch(err => console.error("Erro ao carregar favoritos:", err));
   }, []);
@@ -182,9 +184,8 @@ function Home() {
     const isFav = favorites.includes(item.name);
     if (isFav) {
       setFavorites(favorites.filter(f => f !== item.name));
-      
     } else {
-      axios.post('http://localhost:5000/api/favorites', { name: item.name, description: item.short })
+      axios.post(`${BACKEND_URL}/api/favorites`, { name: item.name, description: item.short })
         .then(() => setFavorites([...favorites, item.name]))
         .catch(err => console.error("Erro ao salvar favorito:", err));
     }
@@ -305,7 +306,7 @@ function FavoritesPage() {
   const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
-    axios.get('https://space-explorer-backend-ksro.onrender.com/api/favorites')
+    axios.get(`${BACKEND_URL}/api/favorites`)
       .then(res => {
         const favNames = res.data.map(f => f.name);
         const favItems = allItems.filter(item => favNames.includes(item.name));
@@ -353,7 +354,7 @@ function Contact() {
   const [form, setForm] = useState({ topic: '', content: '' });
 
   const send = () => {
-    axios.post('https://space-explorer-backend-ksro.onrender.com/api/notes', form)
+    axios.post(`${BACKEND_URL}/api/notes`, form)
       .then(() => alert('Mensagem enviada com sucesso!'))
       .catch(() => alert('Erro ao enviar. Verifique se o backend está rodando.'));
     setForm({ topic: '', content: '' });
