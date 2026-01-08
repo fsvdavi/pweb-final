@@ -24,7 +24,7 @@ const router = express.Router();
 
 router.get('/favorites', async (req, res) => {
   const favorites = await Favorite.find();
-  res.json(favorites);
+  res.json(favorites); 
 });
 
 router.post('/favorites', async (req, res) => {

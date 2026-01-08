@@ -37,6 +37,7 @@ function App() {
               <Nav.Link as={Link} to="/solar-system">Sistema Solar</Nav.Link>
               <Nav.Link as={Link} to="/moons">Luas</Nav.Link>
               <Nav.Link as={Link} to="/other-systems">Outros Sistemas</Nav.Link>
+              <Nav.Link as={Link} to="/favorites">Favoritos</Nav.Link>
               <Nav.Link as={Link} to="/contact">Contato</Nav.Link>
             </Nav>
           </Navbar.Collapse>
@@ -49,6 +50,7 @@ function App() {
           <Route path="/solar-system" element={<SolarSystem />} />
           <Route path="/moons" element={<Moons />} />
           <Route path="/other-systems" element={<OtherSystems />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/contact" element={<Contact />} />
         </Routes>
       </Container>
@@ -78,11 +80,12 @@ function DetailModal({ show, handleClose, item }) {
   );
 }
 
-function LoadingCard({ item, onClick }) {
+// Card com estrelinha de favorito no canto superior direito
+function AstroCard({ item, onClick, isFavorite, onFavoriteToggle }) {
   const [loading, setLoading] = useState(true);
 
   return (
-    <Card className="h-100 text-white bg-dark border-0" onClick={onClick} style={{ cursor: 'pointer' }}>
+    <Card className="h-100 text-white bg-dark border-0" style={{ cursor: 'pointer', position: 'relative' }}>
       <div style={{ height: '200px', position: 'relative', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <img
           src={item.image}
@@ -93,7 +96,19 @@ function LoadingCard({ item, onClick }) {
         />
         {loading && <Spinner animation="border" variant="light" style={{ position: 'absolute' }} />}
       </div>
-      <Card.Body>
+
+      {/* Estrelinha de favorito */}
+      <div
+        style={{ position: 'absolute', top: '10px', right: '10px', fontSize: '2rem', cursor: 'pointer', zIndex: 10 }}
+        onClick={(e) => {
+          e.stopPropagation(); // não abre o modal
+          onFavoriteToggle(item);
+        }}
+      >
+        {isFavorite ? '⭐' : '☆'}
+      </div>
+
+      <Card.Body onClick={onClick}>
         <Card.Title>{item.name}</Card.Title>
         <Card.Text>{item.short}</Card.Text>
       </Card.Body>
@@ -124,19 +139,28 @@ const allItems = [
   { name: "Cinturão de Kuiper", image: "https://images-assets.nasa.gov/image/ACD17-0168-009/ACD17-0168-009~large.jpg?w=1920&h=1440&fit=clip&crop=faces%2Cfocalpoint", short: "Região além de Netuno.", detailed: "É um cinturão de asteróides muito mais distante e maior que o de Orion, contendo no total ate 10%  da massa da Terra dividida entre diversos objetos gelados e planetas anões como Plutão. Extensão: 30 a 55 UA do Sol." },
   { name: "Plutão", image: "https://cdn.mos.cms.futurecdn.net/DA6c9nKCb9u384QntxgtNP.jpeg", short: "Planeta anão no Cinturão de Kuiper.", detailed: "Descoberto: 1930. Diâmetro: 2.377 km. Distância média do Sol: 5.9 bilhões km. Período orbital: 248 anos. Luas: 5 (Caronte principal). Classificado como planeta anão em 2006." },
   { name: "Nuvem de Oort", image: "https://tm.ibxk.com.br/2024/10/29/29145625301191.jpg", short: "Limite externo do sistema solar.", detailed: "Trata-se do espaço (esférico) mais distante possível que a nossa estrela ainda tenha algum tipo de influência e portanto fazendo parte do Sistema Solar. Possui uma extensão absurda podendo passar de até 1 ano luz de diametro. Ë a fonte de cometas de longo período que ocasionalmente entra no sistema solar interno." },
-  { name: "Alpha Centauri A (Rigil Kentaurus)", image: "https://science.nasa.gov/wp-content/uploads/2023/04/hubble_friday_09022016-jpg.webp", short: "Estrela principal do sistema triplo.", detailed: "Nome próprio: Rigil Kentaurus. Tipo espectral: G2V (anã amarela). Massa: 1.1 massas solares. Luminosidade: 1.5 vezes o Sol. Diâmetro: 1.2 vezes o Sol. Constelação: Centauro. Parte do sistema estelar triplo Alpha Centauri." },
-  { name: "Alpha Centauri B (Toliman)", image: "https://www.star-facts.com/wp-content/uploads/2020/08/Alpha-Centauri-A-and-B.jpg", short: "Estrela secundária do sistema.", detailed: "Nome próprio: Toliman. Tipo espectral: K1V (anã laranja). Massa: 0.9 massas solares. Luminosidade: 0.5 vezes o Sol. Diâmetro: 0.9 vezes o Sol. Constelação: Centauro. Parte do sistema estelar triplo Alpha Centauri." },
-  { name: "Proxima Centauri", image: "https://cdn.sci.news/images/enlarge8/image_9579e-Proxima-Centauri-Flare.jpg", short: "Anã vermelha mais próxima.", detailed: "Nome próprio: Proxima Centauri. Tipo espectral: M5.5V (anã vermelha). Massa: 0.12 massas solares. Luminosidade: 0.0017 vezes o Sol. Diâmetro: 0.14 vezes o Sol. Constelação: Centauro. Parte do sistema estelar triplo Alpha Centauri. Possui exoplaneta na zona habitável." },
-  { name: "Sirius A", image: "https://cdn.esahubble.org/archives/images/wallpaper5/heic0516a.jpg", short: "Estrela mais brilhante no céu noturno.", detailed: "Tipo espectral: A1V (estrela branca). Massa: 2 massas solares. Luminosidade: 25 vezes o Sol. Diâmetro: 1.7 vezes o Sol. Constelação: Cão Maior (Canis Major). É a estrela mais brilhante do céu noturno vista da Terra" },
-  { name: "Sirius B", image: "https://cdn.esahubble.org/archives/images/large/heic0516b.jpg", short: "Anã branca companheira de Sirius A.", detailed: "Tipo espectral: DA2 (anã branca). Massa: ~1 massa solar. Luminosidade: muito baixa. Diâmetro: tamanho da Terra. Constelação: Cão Maior (Canis Major). Remanescente de antiga estrela que explodiu em uma supernova." },
+  { name: "Alpha Centauri A (Rigil Kentaurus)", image: "https://science.nasa.gov/wp-content/uploads/2023/04/hubble_friday_09022016-jpg.webp", short: "Estrela principal do sistema triplo.", detailed: "Nome próprio: Rigil Kentaurus. Tipo espectral: G2V (anã amarela). Massa: 1.1 massas solares. Luminosidade: 1.5 vezes o Sol. Diâmetro: 1.2 vezes o Sol. Constelação: Centauro. Trata-se de um estrela bem parecida com o nosso Sol porém um pouco mais velha, maior e mais luminosa sendo a maior do sistema estelar triplo Alpha Centauri." },
+  { name: "Alpha Centauri B (Toliman)", image: "https://www.star-facts.com/wp-content/uploads/2020/08/Alpha-Centauri-A-and-B.jpg", short: "Estrela secundária do sistema.", detailed: "Nome próprio: Toliman. Tipo espectral: K1V (anã laranja). Massa: 0.9 massas solares. Luminosidade: 0.5 vezes o Sol. Diâmetro: 0.9 vezes o Sol. Constelação: Centauro. Estrela de cor alaranjada, menor e com menos brilho que o Sol, porém que vive por dezenas de bilhões de anos a mais. Faz parte do sistema estelar triplo Alpha Centauri na dupla principal interna junto à Rigil Kentaurus." },
+  { name: "Proxima Centauri", image: "https://cdn.sci.news/images/enlarge8/image_9579e-Proxima-Centauri-Flare.jpg", short: "Anã vermelha mais próxima.", detailed: "Nome próprio: Proxima Centauri. Tipo espectral: M5.5V (anã vermelha). Massa: 0.12 massas solares. Luminosidade: 0.0017 vezes o Sol. Diâmetro: 0.14 vezes o Sol. Constelação: Centauro. É a menor estrela do sistema de Alpha Centauri.Orbitando ao redor do par principal.Leva o nome devido a ser a estrela mais próxima ao sisstema solar excluindo o próprio Sol. Devido a ser muito menor e mais fraca é a única das três que possui exoplanetas confirmados em sua órbita.Sendo três planetas no total com um em específico (Proxima Centauri b) chamando atenção por ser um planeta rochoso, de tamanho similar ao da Terra na zona habitável possuindo alguma chance de vida." },
+  { name: "Sirius A", image: "https://cdn.esahubble.org/archives/images/wallpaper5/heic0516a.jpg", short: "Estrela mais brilhante no céu noturno.", detailed: "Tipo espectral: A1V (estrela branca). Massa: 2 massas solares. Luminosidade: 25 vezes o Sol. Diâmetro: 1.7 vezes o Sol. Constelação: Cão Maior (Canis Major). É uma estrela de bliho branco azulado conhecida por ser a estrela mais brilhante do céu noturno visto da Terra" },
+  { name: "Sirius B", image: "https://cdn.esahubble.org/archives/images/large/heic0516b.jpg", short: "Anã branca companheira de Sirius A.", detailed: "Tipo espectral: DA2 (anã branca). Massa: ~1 massa solar. Luminosidade: muito baixa. Diâmetro: tamanho da Terra. Constelação: Cão Maior (Canis Major). Trata-se de uma estrela que são os restos de uma antiga estrela que explodiu em uma supernova." },
 ];
 
 function Home() {
   const [apod, setApod] = useState(null);
   const [loadingApod, setLoadingApod] = useState(true);
+  const [favorites, setFavorites] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
+  // Carrega favoritos do MongoDB
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/favorites')
+      .then(res => setFavorites(res.data.map(f => f.name)))
+      .catch(err => console.error("Erro ao carregar favoritos:", err));
+  }, []);
+
+  // APOD com fallback (API com problema hoje, mas fallback funciona)
   useEffect(() => {
     axios.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY')
       .then(res => {
@@ -147,11 +171,24 @@ function Home() {
         setApod({
           title: "Nebulosa do Coração",
           url: "https://apod.nasa.gov/apod/image/2412/Heart_HorneEvans_4096.jpg",
-          explanation: "Uma das nebulosas mais belas do céu, capturada em alta resolução."
+          explanation: "Uma das nebulosas mais belas do céu, capturada em alta resolução (fallback - API NASA temporariamente indisponível)."
         });
         setLoadingApod(false);
       });
   }, []);
+
+  // Toggle favorito
+  const toggleFavorite = (item) => {
+    const isFav = favorites.includes(item.name);
+    if (isFav) {
+      setFavorites(favorites.filter(f => f !== item.name));
+      // Opcional: DELETE no backend depois
+    } else {
+      axios.post('http://localhost:5000/api/favorites', { name: item.name, description: item.short })
+        .then(() => setFavorites([...favorites, item.name]))
+        .catch(err => console.error("Erro ao salvar favorito:", err));
+    }
+  };
 
   const handleCardClick = (item) => {
     setSelectedItem(item);
@@ -184,7 +221,12 @@ function Home() {
       <div className="row">
         {allItems.map(item => (
           <div className="col-md-4 mb-4" key={item.name}>
-            <LoadingCard item={item} onClick={() => handleCardClick(item)} />
+            <AstroCard
+              item={item}
+              onClick={() => handleCardClick(item)}
+              isFavorite={favorites.includes(item.name)}
+              onFavoriteToggle={toggleFavorite}
+            />
           </div>
         ))}
       </div>
@@ -194,7 +236,54 @@ function Home() {
   );
 }
 
-// As outras páginas (filtros corretos)
+// As outras páginas usam AstroCard também (para ter a estrelinha em todo lugar)
+function CardGrid({ items, title }) {
+  const [favorites, setFavorites] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/favorites')
+      .then(res => setFavorites(res.data.map(f => f.name)))
+      .catch(err => console.error(err));
+  }, []);
+
+  const toggleFavorite = (item) => {
+    const isFav = favorites.includes(item.name);
+    if (isFav) {
+      setFavorites(favorites.filter(f => f !== item.name));
+    } else {
+      axios.post('http://localhost:5000/api/favorites', { name: item.name, description: item.short })
+        .then(() => setFavorites([...favorites, item.name]))
+        .catch(err => console.error(err));
+    }
+  };
+
+  const handleCardClick = (item) => {
+    setSelectedItem(item);
+    setShowModal(true);
+  };
+
+  return (
+    <>
+      <h1 className="text-center my-5">{title}</h1>
+      <div className="row">
+        {items.map(item => (
+          <div className="col-md-4 mb-4" key={item.name}>
+            <AstroCard
+              item={item}
+              onClick={() => handleCardClick(item)}
+              isFavorite={favorites.includes(item.name)}
+              onFavoriteToggle={toggleFavorite}
+            />
+          </div>
+        ))}
+      </div>
+      <DetailModal show={showModal} handleClose={() => setShowModal(false)} item={selectedItem} />
+    </>
+  );
+}
+
 function SolarSystem() {
   const items = allItems.filter(i => !i.name.includes('Sirius') && !i.name.includes('Alpha Centauri') && !i.name.includes('Proxima'));
   return <CardGrid items={items} title="Sistema Solar" />;
@@ -210,9 +299,20 @@ function OtherSystems() {
   return <CardGrid items={items} title="Outros Sistemas Estelares" />;
 }
 
-function CardGrid({ items, title }) {
+function FavoritesPage() {
+  const [favorites, setFavorites] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/favorites')
+      .then(res => {
+        const favNames = res.data.map(f => f.name);
+        const favItems = allItems.filter(item => favNames.includes(item.name));
+        setFavorites(favItems);
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   const handleCardClick = (item) => {
     setSelectedItem(item);
@@ -221,14 +321,29 @@ function CardGrid({ items, title }) {
 
   return (
     <>
-      <h1 className="text-center my-5">{title}</h1>
-      <div className="row">
-        {items.map(item => (
-          <div className="col-md-4 mb-4" key={item.name}>
-            <LoadingCard item={item} onClick={() => handleCardClick(item)} />
-          </div>
-        ))}
-      </div>
+      <h1 className="text-center my-5" style={{ fontSize: '3.5rem', fontWeight: 'bold', color: '#00ffff' }}>
+        Meus Favoritos ⭐
+      </h1>
+
+      {favorites.length === 0 ? (
+        <p className="text-center text-white" style={{ fontSize: '1.5rem' }}>
+          Nenhum favorito ainda. Clique na estrelinha ☆ nos cards para adicionar!
+        </p>
+      ) : (
+        <div className="row">
+          {favorites.map(item => (
+            <div className="col-md-4 mb-4" key={item.name}>
+              <AstroCard
+                item={item}
+                onClick={() => handleCardClick(item)}
+                isFavorite={true}
+                onFavoriteToggle={() => {}} // não precisa remover aqui
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
       <DetailModal show={showModal} handleClose={() => setShowModal(false)} item={selectedItem} />
     </>
   );
